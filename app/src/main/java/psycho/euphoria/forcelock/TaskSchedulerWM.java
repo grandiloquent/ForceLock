@@ -23,8 +23,9 @@ public class TaskSchedulerWM {
 //            calendar.add(Calendar.DAY_OF_YEAR, 1);
 //            delay = calendar.getTimeInMillis() - System.currentTimeMillis();
 //        }
+        Log.e("B5aOx2", String.format("scheduleTask, %s", minute * 60));
         OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(TaskWorker.class)
-                .setInitialDelay(minute * 60 * 1000, TimeUnit.MILLISECONDS)
+                .setInitialDelay(minute * 60, TimeUnit.SECONDS)
                 .build();
         WorkManager.getInstance(context).enqueue(workRequest);
     }
