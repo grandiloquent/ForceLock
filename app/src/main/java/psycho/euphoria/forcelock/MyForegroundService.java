@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 public class MyForegroundService extends Service {
@@ -23,6 +24,7 @@ public class MyForegroundService extends Service {
         if (action != null && action.equals(ACTION_LOCK)) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             int time = preferences.getInt("last", 10);
+            Log.e("B5aOx2", String.format("onStartCommand, %s", time));
             TaskSchedulerWM.scheduleTask(this, 0, time);
             AlarmScheduler.scheduleAlarm(this, 0, time * 2);
             Toast.makeText(this, time + " 分钟后锁屏", Toast.LENGTH_SHORT).show();
@@ -34,8 +36,9 @@ public class MyForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
-        Intent notificationIntent = new Intent(this, MainActivity.class); // Replace MainActivity.class
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        Intent notificationIntent = new Intent(this, MyForegroundService.class); // Replace MainActivity.class
+        notificationIntent.setAction(ACTION_LOCK);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle("强制锁屏")
                 .setContentText("运行中...")
@@ -51,14 +54,12 @@ public class MyForegroundService extends Service {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Foreground Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(serviceChannel);
-        }
+        NotificationChannel serviceChannel = new NotificationChannel(
+                CHANNEL_ID,
+                "Foreground Service Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(serviceChannel);
     }
 }

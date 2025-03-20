@@ -48,10 +48,8 @@ public class MainActivity extends Activity {
                     int time = Integer.parseInt(value);
                     preferences.edit().putInt("last", time).commit();
                     Intent serviceIntent = new Intent(MainActivity.this, MyForegroundService.class);
-                    serviceIntent.setAction(MyForegroundService.ACTION_LOCK);
                     startForegroundService(serviceIntent);
-                    
-                    finish();
+
                 }
 
             }
