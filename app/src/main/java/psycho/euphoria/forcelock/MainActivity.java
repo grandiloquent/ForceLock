@@ -2,9 +2,11 @@ package psycho.euphoria.forcelock;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -20,6 +22,9 @@ public class MainActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        if (checkSelfPermission("android.permission.SCHEDULE_EXACT_ALARM") != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{"android.permission.SCHEDULE_EXACT_ALARM"}, 0);
+        }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         int lastInput = preferences.getInt("last", 10);
         EditText editText = findViewById(R.id.myEditText);
@@ -27,7 +32,6 @@ public class MainActivity extends Activity {
         findViewById(R.id.ok).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 LockScreenManager lockScreenManager = new LockScreenManager(MainActivity.this);
                 if (!lockScreenManager.isAdminActive()) {
                     lockScreenManager.requestAdminPermission();
@@ -40,7 +44,7 @@ public class MainActivity extends Activity {
                         value = "10";
                     }
                     int time = Integer.parseInt(value);
-                    preferences.edit().putInt("last",time).apply();
+                    preferences.edit().putInt("last", time).apply();
                     TaskSchedulerWM.scheduleTask(MainActivity.this, 0, time);
                     AlarmScheduler.scheduleAlarm(MainActivity.this, 0, time * 2);
                     Toast.makeText(MainActivity.this, time + " 分钟后锁屏", Toast.LENGTH_SHORT).show();
