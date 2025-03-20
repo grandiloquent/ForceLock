@@ -8,12 +8,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
@@ -29,13 +28,28 @@ public class MyForegroundService extends Service {
         if (action != null && action.equals(ACTION_LOCK)) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             int time = preferences.getInt("last", 10);
-            Log.e("B5aOx2", String.format("onStartCommand, %s", time));
-            TaskSchedulerWM.scheduleTask(this, 0, time);
-            AlarmScheduler.scheduleAlarm(this, 0, time * 2);
+//            TaskSchedulerWM.scheduleTask(this, 0, time);
+//            AlarmScheduler.scheduleAlarm(this, 0, time);
+            task(time);
             Toast.makeText(this, time + " 分钟后锁屏", Toast.LENGTH_SHORT).show();
         }
         return START_STICKY; // Or other appropriate return value
     }
+
+    void task(int time) {
+        long et = SystemClock.elapsedRealtime() + time * 60 * 1000;
+        new Thread(() -> {
+            while (true) {
+                if (SystemClock.elapsedRealtime() > et) {
+                    LockScreenManager lockScreenManager = new LockScreenManager(MyForegroundService.this);
+                    lockScreenManager.lockScreen();
+                    return;
+                }
+            }
+
+        }).start();
+    }
+
 
     @Override
     public void onCreate() {
@@ -47,6 +61,7 @@ public class MyForegroundService extends Service {
         Notification notification = new Builder(this, CHANNEL_ID)
                 .setContentTitle("强制锁屏")
                 .setContentText("运行中...")
+                .setOngoing(true)
                 .setSmallIcon(android.R.drawable.ic_notification_overlay) // Replace with your icon
                 .setContentIntent(pendingIntent)
                 .build();
@@ -55,6 +70,7 @@ public class MyForegroundService extends Service {
         } else {
             startForeground(1, notification);
         }
+
     }
 
     @Override
