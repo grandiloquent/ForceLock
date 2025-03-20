@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.ok).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 LockScreenManager lockScreenManager = new LockScreenManager(MainActivity.this);
                 if (!lockScreenManager.isAdminActive()) {
                     lockScreenManager.requestAdminPermission();
@@ -39,6 +40,7 @@ public class MainActivity extends Activity {
                         value = "10";
                     }
                     int time = Integer.parseInt(value);
+                    preferences.edit().putInt("last",time).apply();
                     TaskSchedulerWM.scheduleTask(MainActivity.this, 0, time);
                     AlarmScheduler.scheduleAlarm(MainActivity.this, 0, time * 2);
                     Toast.makeText(MainActivity.this, time + " 分钟后锁屏", Toast.LENGTH_SHORT).show();
