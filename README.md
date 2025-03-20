@@ -4,4 +4,4 @@
 
 防止在刷视频，像抖音，中间睡着了，长时间停在同一屏幕，烧坏手机屏幕。
 
-下载地址：https://github.com/grandiloquent/ForceLock
+下载地址：[app-debug.apk](https://github.com/grandiloquent/ForceLock/releases)
